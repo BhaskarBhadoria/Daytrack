@@ -77,4 +77,108 @@ router.get("/weekly", async (req, res) => {
   }
 });
 
+// GET /api/reports/streak — current & longest streak of days with at least one completed goal
+router.get("/streak", async (req, res) => {
+  try {
+    const result = await pool.query(
+      `SELECT DISTINCT goal_date FROM goals WHERE user_id = $1 AND is_completed = true ORDER BY goal_date ASC`,
+      [req.userId]
+    );
+    const dates = result.rows.map((r) => r.goal_date.toISOString().slice(0, 10));
+    const dateSet = new Set(dates);
+
+    // Longest streak: scan chronologically for consecutive runs.
+    let longest = 0;
+    let run = 0;
+    let prev = null;
+    for (const d of dates) {
+      const cur = new Date(d);
+      if (prev) {
+        const diffDays = Math.round((cur - prev) / 86400000);
+        run = diffDays === 1 ? run + 1 : 1;
+      } else {
+        run = 1;
+      }
+      longest = Math.max(longest, run);
+      prev = cur;
+    }
+
+    // Current streak: walk backward from today (or yesterday, so an unfinished
+    // "today" doesn't zero out an otherwise-live streak).
+    const today = new Date();
+    const todayStr = today.toISOString().slice(0, 10);
+    let cursor = dateSet.has(todayStr) ? today : new Date(today.getTime() - 86400000);
+    let current = 0;
+    while (dateSet.has(cursor.toISOString().slice(0, 10))) {
+      current += 1;
+      cursor = new Date(cursor.getTime() - 86400000);
+    }
+
+    res.json({ current_streak: current, longest_streak: longest });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Failed to compute streak" });
+  }
+});
+
+// GET /api/reports/monthly?month=YYYY-MM
+router.get("/monthly", async (req, res) => {
+  try {
+    const { month } = req.query;
+    if (!month) return res.status(400).json({ error: "month query param (YYYY-MM) is required" });
+
+    const result = await pool.query(
+      `SELECT goal_date,
+              COUNT(*) as total,
+              SUM(CASE WHEN is_completed THEN 1 ELSE 0 END) as completed
+       FROM goals
+       WHERE user_id = $1 AND to_char(goal_date, 'YYYY-MM') = $2
+       GROUP BY goal_date
+       ORDER BY goal_date`,
+      [req.userId, month]
+    );
+
+    const days = result.rows.map((r) => ({
+      date: r.goal_date.toISOString().slice(0, 10),
+      total: parseInt(r.total, 10),
+      completed: parseInt(r.completed, 10),
+    }));
+
+    res.json({ month, days });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Failed to build monthly view" });
+  }
+});
+
+// GET /api/reports/categories?start=YYYY-MM-DD&end=YYYY-MM-DD
+router.get("/categories", async (req, res) => {
+  try {
+    const { start, end } = req.query;
+    if (!start || !end) return res.status(400).json({ error: "start and end are required" });
+
+    const result = await pool.query(
+      `SELECT category,
+              COUNT(*) as total,
+              SUM(CASE WHEN is_completed THEN 1 ELSE 0 END) as completed
+       FROM goals
+       WHERE user_id = $1 AND goal_date BETWEEN $2 AND $3
+       GROUP BY category
+       ORDER BY total DESC`,
+      [req.userId, start, end]
+    );
+
+    const categories = result.rows.map((r) => ({
+      category: r.category,
+      total: parseInt(r.total, 10),
+      completed: parseInt(r.completed, 10),
+    }));
+
+    res.json({ start, end, categories });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Failed to build category breakdown" });
+  }
+});
+
 export default router;

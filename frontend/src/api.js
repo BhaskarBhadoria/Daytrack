@@ -33,6 +33,12 @@ export const api = {
   logSleep: (body) => request("/sleep", { method: "POST", body: JSON.stringify(body) }),
 
   getWeeklyReport: (start) => request(`/reports/weekly?start=${start}`),
+  getStreak: () => request(`/reports/streak`),
+  getMonthly: (month) => request(`/reports/monthly?month=${month}`),
+  getCategories: (start, end) => request(`/reports/categories?start=${start}&end=${end}`),
+
+  getSettings: () => request(`/settings`),
+  updateSettings: (body) => request(`/settings`, { method: "PUT", body: JSON.stringify(body) }),
 };
 
 export { getToken };

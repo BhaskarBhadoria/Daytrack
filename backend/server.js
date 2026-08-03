@@ -6,6 +6,7 @@ import authRoutes from "./routes/auth.js";
 import goalsRoutes from "./routes/goals.js";
 import sleepRoutes from "./routes/sleep.js";
 import reportsRoutes from "./routes/reports.js";
+import settingsRoutes from "./routes/settings.js";
 
 dotenv.config();
 
@@ -19,6 +20,7 @@ app.use("/api/auth", authRoutes);
 app.use("/api/goals", goalsRoutes);
 app.use("/api/sleep", sleepRoutes);
 app.use("/api/reports", reportsRoutes);
+app.use("/api/settings", settingsRoutes);
 
 const PORT = process.env.PORT || 4000;
 

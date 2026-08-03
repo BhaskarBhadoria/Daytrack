@@ -4,6 +4,9 @@ import {
   Bar,
   LineChart,
   Line,
+  PieChart,
+  Pie,
+  Cell,
   XAxis,
   YAxis,
   CartesianGrid,
@@ -12,6 +15,8 @@ import {
   ResponsiveContainer,
 } from "recharts";
 import { api } from "../api.js";
+
+const CATEGORY_COLORS = ["#4f46e5", "#22c55e", "#f97316", "#e11d48", "#0ea5e9", "#a855f7", "#64748b"];
 
 function mondayOf(date) {
   const d = new Date(date);
@@ -24,6 +29,7 @@ function mondayOf(date) {
 export default function WeeklyReport() {
   const [weekStart, setWeekStart] = useState(mondayOf(new Date()));
   const [report, setReport] = useState(null);
+  const [categories, setCategories] = useState([]);
   const [error, setError] = useState("");
 
   async function load() {
@@ -31,6 +37,8 @@ export default function WeeklyReport() {
     try {
       const data = await api.getWeeklyReport(weekStart);
       setReport(data);
+      const catData = await api.getCategories(data.week_start, data.week_end);
+      setCategories(catData.categories);
     } catch (err) {
       setError(err.message);
     }
@@ -120,6 +128,32 @@ export default function WeeklyReport() {
               <Line type="monotone" dataKey="hours" stroke="#f97316" strokeWidth={2} />
             </LineChart>
           </ResponsiveContainer>
+
+          {categories.length > 0 && (
+            <>
+              <h2>Goals by category</h2>
+              <ResponsiveContainer width="100%" height={280}>
+                <PieChart>
+                  <Pie
+                    data={categories}
+                    dataKey="total"
+                    nameKey="category"
+                    cx="50%"
+                    cy="50%"
+                    outerRadius={100}
+                    label={(entry) => `${entry.category} (${entry.total})`}
+                  >
+                    {categories.map((entry, idx) => (
+                      <Cell key={entry.category} fill={CATEGORY_COLORS[idx % CATEGORY_COLORS.length]} />
+                    ))}
+                  </Pie>
+                  <Tooltip
+                    formatter={(value, name, props) => [`${props.payload.completed}/${value} done`, props.payload.category]}
+                  />
+                </PieChart>
+              </ResponsiveContainer>
+            </>
+          )}
         </>
       )}
     </div>

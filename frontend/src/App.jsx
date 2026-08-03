@@ -1,10 +1,13 @@
 import { BrowserRouter, Routes, Route, Navigate, Link, useNavigate } from "react-router-dom";
 import { useAuth } from "./context/AuthContext.jsx";
+import { useReminders } from "./hooks/useReminders.js";
 import Login from "./pages/Login.jsx";
 import Signup from "./pages/Signup.jsx";
 import Dashboard from "./pages/Dashboard.jsx";
 import SleepLog from "./pages/SleepLog.jsx";
 import WeeklyReport from "./pages/WeeklyReport.jsx";
+import MonthlyView from "./pages/MonthlyView.jsx";
+import Settings from "./pages/Settings.jsx";
 
 function PrivateRoute({ children }) {
   const { user } = useAuth();
@@ -23,6 +26,8 @@ function NavBar() {
         <Link to="/">Today</Link>
         <Link to="/sleep">Sleep</Link>
         <Link to="/report">Weekly Report</Link>
+        <Link to="/monthly">Monthly</Link>
+        <Link to="/settings">Settings</Link>
       </div>
       <div className="navbar-user">
         <span>Hi, {user.name}</span>
@@ -39,9 +44,16 @@ function NavBar() {
   );
 }
 
+function ReminderRunner() {
+  const { user } = useAuth();
+  useReminders(!!user);
+  return null;
+}
+
 export default function App() {
   return (
     <BrowserRouter>
+      <ReminderRunner />
       <NavBar />
       <div className="page-container">
         <Routes>
@@ -68,6 +80,22 @@ export default function App() {
             element={
               <PrivateRoute>
                 <WeeklyReport />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/monthly"
+            element={
+              <PrivateRoute>
+                <MonthlyView />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/settings"
+            element={
+              <PrivateRoute>
+                <Settings />
               </PrivateRoute>
             }
           />

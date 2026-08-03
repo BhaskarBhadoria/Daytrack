@@ -37,3 +37,12 @@ CREATE TABLE IF NOT EXISTS sleep_logs (
 
 CREATE INDEX IF NOT EXISTS idx_goals_user_date ON goals(user_id, goal_date);
 CREATE INDEX IF NOT EXISTS idx_sleep_user_date ON sleep_logs(user_id, log_date);
+
+CREATE TABLE IF NOT EXISTS reminder_settings (
+  user_id INTEGER PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
+  plan_reminder_enabled BOOLEAN DEFAULT FALSE,
+  plan_reminder_time TEXT DEFAULT '21:00',   -- HH:MM, 24h, local browser time
+  sleep_reminder_enabled BOOLEAN DEFAULT FALSE,
+  sleep_reminder_time TEXT DEFAULT '07:00',
+  updated_at TIMESTAMP DEFAULT NOW()
+);
