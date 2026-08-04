@@ -45,6 +45,17 @@ export const api = {
   updateTimetableSlot: (id, body) =>
     request(`/timetable/${id}`, { method: "PATCH", body: JSON.stringify(body) }),
   deleteTimetableSlot: (id) => request(`/timetable/${id}`, { method: "DELETE" }),
+
+  getSyllabusProgress: () => request(`/syllabus/progress`),
+  updateSyllabusProgress: (item_key, completed) =>
+    request(`/syllabus/progress`, { method: "POST", body: JSON.stringify({ item_key, completed }) }),
+
+  getGoogleStatus: () => request(`/google/status`),
+  getGoogleAuthUrl: () => request(`/google/auth-url`),
+  disconnectGoogle: () => request(`/google/disconnect`, { method: "POST" }),
+  syncTimetableToGoogle: () => request(`/google/sync-timetable`, { method: "POST" }),
+  syncGoalsToGoogle: (date) =>
+    request(`/google/sync-goals`, { method: "POST", body: JSON.stringify({ date }) }),
 };
 
 export { getToken };

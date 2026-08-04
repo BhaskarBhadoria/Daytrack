@@ -1,6 +1,10 @@
 import { useEffect, useState } from "react";
 import { api } from "../api.js";
 
+function todayStr() {
+  return new Date().toISOString().slice(0, 10);
+}
+
 export default function Settings() {
   const [settings, setSettings] = useState(null);
   const [permission, setPermission] = useState(
@@ -8,13 +12,82 @@ export default function Settings() {
   );
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
+  const [googleConnected, setGoogleConnected] = useState(false);
+  const [googleBusy, setGoogleBusy] = useState(false);
 
   useEffect(() => {
     api
       .getSettings()
       .then(setSettings)
       .catch((err) => setError(err.message));
+
+    api
+      .getGoogleStatus()
+      .then((s) => setGoogleConnected(s.connected))
+      .catch(() => {});
+
+    const params = new URLSearchParams(window.location.search);
+    const googleParam = params.get("google");
+    if (googleParam === "connected") setSuccess("Google Calendar connected!");
+    if (googleParam === "error") setError("Google Calendar connection failed — try again.");
+    if (googleParam === "no_refresh_token")
+      setError(
+        "Google didn't grant fresh access. Visit myaccount.google.com/permissions, remove DayTrack, then try connecting again."
+      );
+    if (googleParam) window.history.replaceState({}, "", "/settings");
   }, []);
+
+  async function connectGoogle() {
+    setGoogleBusy(true);
+    try {
+      const { url } = await api.getGoogleAuthUrl();
+      window.location.href = url;
+    } catch (err) {
+      setError(err.message);
+      setGoogleBusy(false);
+    }
+  }
+
+  async function disconnectGoogle() {
+    setGoogleBusy(true);
+    try {
+      await api.disconnectGoogle();
+      setGoogleConnected(false);
+      setSuccess("Disconnected from Google Calendar.");
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setGoogleBusy(false);
+    }
+  }
+
+  async function syncTimetable() {
+    setGoogleBusy(true);
+    setError("");
+    setSuccess("");
+    try {
+      const result = await api.syncTimetableToGoogle();
+      setSuccess(`Synced! ${result.created} created, ${result.updated} updated.`);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setGoogleBusy(false);
+    }
+  }
+
+  async function syncGoals() {
+    setGoogleBusy(true);
+    setError("");
+    setSuccess("");
+    try {
+      const result = await api.syncGoalsToGoogle(todayStr());
+      setSuccess(`Synced today's ${result.goal_count} goals to Google Calendar.`);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setGoogleBusy(false);
+    }
+  }
 
   async function requestPermission() {
     if (typeof Notification === "undefined") {
@@ -99,6 +172,42 @@ export default function Settings() {
         {success && <p className="success">{success}</p>}
         <button type="submit">Save reminders</button>
       </form>
+
+      <h1 className="settings-section-title">Google Calendar</h1>
+      <div className="notice-box">
+        {googleConnected ? (
+          <>
+            <p>Connected — your timetable and goals can push to your Google Calendar.</p>
+            <button onClick={disconnectGoogle} disabled={googleBusy}>
+              Disconnect
+            </button>
+          </>
+        ) : (
+          <>
+            <p>Connect your Google Calendar to see your timetable and goals there too.</p>
+            <button onClick={connectGoogle} disabled={googleBusy}>
+              Connect Google Calendar
+            </button>
+          </>
+        )}
+      </div>
+
+      {googleConnected && (
+        <div className="settings-form">
+          <div className="settings-row">
+            <span>Push your recurring timetable as daily calendar events</span>
+            <button type="button" onClick={syncTimetable} disabled={googleBusy}>
+              Sync timetable
+            </button>
+          </div>
+          <div className="settings-row">
+            <span>Push today's goals as a calendar event</span>
+            <button type="button" onClick={syncGoals} disabled={googleBusy}>
+              Sync today's goals
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

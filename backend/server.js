@@ -8,6 +8,8 @@ import sleepRoutes from "./routes/sleep.js";
 import reportsRoutes from "./routes/reports.js";
 import settingsRoutes from "./routes/settings.js";
 import timetableRoutes from "./routes/timetable.js";
+import syllabusRoutes from "./routes/syllabus.js";
+import googleRoutes from "./routes/google.js";
 
 dotenv.config();
 
@@ -23,6 +25,8 @@ app.use("/api/sleep", sleepRoutes);
 app.use("/api/reports", reportsRoutes);
 app.use("/api/settings", settingsRoutes);
 app.use("/api/timetable", timetableRoutes);
+app.use("/api/syllabus", syllabusRoutes);
+app.use("/api/google", googleRoutes);
 
 const PORT = process.env.PORT || 4000;
 

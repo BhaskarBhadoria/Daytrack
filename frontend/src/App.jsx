@@ -1,4 +1,14 @@
-import { BrowserRouter, Routes, Route, Navigate, Link, useNavigate } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate, Link, useLocation, useNavigate } from "react-router-dom";
+import {
+  CalendarCheck2,
+  Clock4,
+  Moon,
+  BarChart3,
+  CalendarDays,
+  BookOpenCheck,
+  Settings as SettingsIcon,
+  LogOut,
+} from "lucide-react";
 import { useAuth } from "./context/AuthContext.jsx";
 import { useReminders } from "./hooks/useReminders.js";
 import Login from "./pages/Login.jsx";
@@ -9,39 +19,67 @@ import WeeklyReport from "./pages/WeeklyReport.jsx";
 import MonthlyView from "./pages/MonthlyView.jsx";
 import Settings from "./pages/Settings.jsx";
 import Timetable from "./pages/Timetable.jsx";
+import Syllabus from "./pages/Syllabus.jsx";
 import Avatar from "./components/Avatar.jsx";
+
+const NAV_ITEMS = [
+  { to: "/", label: "Today", icon: CalendarCheck2 },
+  { to: "/timetable", label: "Timetable", icon: Clock4 },
+  { to: "/sleep", label: "Sleep", icon: Moon },
+  { to: "/report", label: "Weekly", icon: BarChart3 },
+  { to: "/monthly", label: "Monthly", icon: CalendarDays },
+  { to: "/syllabus", label: "Syllabus", icon: BookOpenCheck },
+];
 
 function PrivateRoute({ children }) {
   const { user } = useAuth();
   return user ? children : <Navigate to="/login" replace />;
 }
 
-function NavBar() {
+function Sidebar() {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
   if (!user) return null;
 
   return (
-    <nav className="navbar">
-      <div className="navbar-brand">DayTrack</div>
-      <div className="navbar-links">
-        <Link to="/">Today</Link>
-        <Link to="/timetable">Timetable</Link>
-        <Link to="/sleep">Sleep</Link>
-        <Link to="/report">Weekly Report</Link>
-        <Link to="/monthly">Monthly</Link>
-        <Link to="/settings">Settings</Link>
+    <nav className="sidebar">
+      <div className="sidebar-brand">
+        <span className="sidebar-brand-mark">◆</span>
+        <span className="sidebar-brand-text">DayTrack</span>
       </div>
-      <div className="navbar-user">
-        <Avatar name={user.name} size={32} />
-        <span>{user.name}</span>
+
+      <div className="sidebar-links">
+        {NAV_ITEMS.map(({ to, label, icon: Icon }) => {
+          const active = location.pathname === to;
+          return (
+            <Link key={to} to={to} className={`sidebar-link ${active ? "active" : ""}`}>
+              <Icon size={18} strokeWidth={2} />
+              <span>{label}</span>
+            </Link>
+          );
+        })}
+        <Link
+          to="/settings"
+          className={`sidebar-link ${location.pathname === "/settings" ? "active" : ""}`}
+        >
+          <SettingsIcon size={18} strokeWidth={2} />
+          <span>Settings</span>
+        </Link>
+      </div>
+
+      <div className="sidebar-footer">
+        <Avatar name={user.name} size={34} />
+        <span className="sidebar-user-name">{user.name}</span>
         <button
+          className="sidebar-logout"
+          title="Log out"
           onClick={() => {
             logout();
             navigate("/login");
           }}
         >
-          Logout
+          <LogOut size={17} strokeWidth={2} />
         </button>
       </div>
     </nav>
@@ -54,12 +92,12 @@ function ReminderRunner() {
   return null;
 }
 
-export default function App() {
+function AppShell() {
+  const { user } = useAuth();
   return (
-    <BrowserRouter>
-      <ReminderRunner />
-      <NavBar />
-      <div className="page-container">
+    <div className={user ? "app-shell with-sidebar" : "app-shell"}>
+      <Sidebar />
+      <main className="page-container">
         <Routes>
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
@@ -104,6 +142,14 @@ export default function App() {
             }
           />
           <Route
+            path="/syllabus"
+            element={
+              <PrivateRoute>
+                <Syllabus />
+              </PrivateRoute>
+            }
+          />
+          <Route
             path="/settings"
             element={
               <PrivateRoute>
@@ -112,7 +158,16 @@ export default function App() {
             }
           />
         </Routes>
-      </div>
+      </main>
+    </div>
+  );
+}
+
+export default function App() {
+  return (
+    <BrowserRouter>
+      <ReminderRunner />
+      <AppShell />
     </BrowserRouter>
   );
 }

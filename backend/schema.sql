@@ -60,3 +60,21 @@ CREATE TABLE IF NOT EXISTS timetable_slots (
 );
 
 CREATE INDEX IF NOT EXISTS idx_timetable_user ON timetable_slots(user_id, start_time);
+
+-- Tracks which UPSC syllabus topics the user has completed. The syllabus tree
+-- itself lives as static data in the frontend; this just stores checked state.
+CREATE TABLE IF NOT EXISTS syllabus_progress (
+  user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  item_key TEXT NOT NULL,
+  completed_at TIMESTAMP DEFAULT NOW(),
+  PRIMARY KEY (user_id, item_key)
+);
+
+-- Stores each user's Google OAuth refresh token so we can push events to
+-- their Google Calendar without asking them to re-authenticate every time.
+CREATE TABLE IF NOT EXISTS google_tokens (
+  user_id INTEGER PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
+  refresh_token TEXT NOT NULL,
+  calendar_id TEXT DEFAULT 'primary',
+  connected_at TIMESTAMP DEFAULT NOW()
+);
