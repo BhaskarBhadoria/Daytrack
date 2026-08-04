@@ -46,3 +46,17 @@ CREATE TABLE IF NOT EXISTS reminder_settings (
   sleep_reminder_time TEXT DEFAULT '07:00',
   updated_at TIMESTAMP DEFAULT NOW()
 );
+
+-- A recurring daily timetable: the same block schedule every day (e.g. "6-8am Study",
+-- "9-5 College"), separate from the day-specific goals in the `goals` table.
+CREATE TABLE IF NOT EXISTS timetable_slots (
+  id SERIAL PRIMARY KEY,
+  user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  title TEXT NOT NULL,
+  category TEXT DEFAULT 'general',
+  start_time TEXT NOT NULL,  -- HH:MM 24h
+  end_time TEXT NOT NULL,    -- HH:MM 24h
+  created_at TIMESTAMP DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS idx_timetable_user ON timetable_slots(user_id, start_time);

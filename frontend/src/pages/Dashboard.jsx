@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { api } from "../api.js";
+import Spinner from "../components/Spinner.jsx";
 
 function todayStr() {
   return new Date().toISOString().slice(0, 10);
@@ -14,17 +15,19 @@ function tomorrowStr() {
 function GoalItem({ goal, onToggle, onDelete }) {
   return (
     <li className={`goal-item ${goal.is_completed ? "done" : ""}`}>
-      <label>
-        <input
-          type="checkbox"
-          checked={goal.is_completed}
-          onChange={() => onToggle(goal)}
-        />
-        <span>{goal.title}</span>
-        {goal.category && goal.category !== "general" && (
-          <span className="tag">{goal.category}</span>
-        )}
-      </label>
+      <button
+        className={`stamp-toggle ${goal.is_completed ? "stamped" : ""}`}
+        onClick={() => onToggle(goal)}
+        aria-pressed={goal.is_completed}
+        aria-label={goal.is_completed ? "Mark incomplete" : "Mark complete"}
+        type="button"
+      >
+        <span className="stamp-mark">✓</span>
+      </button>
+      <span className="goal-title">{goal.title}</span>
+      {goal.category && goal.category !== "general" && (
+        <span className="tag">{goal.category}</span>
+      )}
       <button className="icon-btn" onClick={() => onDelete(goal.id)} title="Delete">
         ✕
       </button>
@@ -139,7 +142,7 @@ export default function Dashboard() {
       {error && <p className="error">{error}</p>}
 
       {loading ? (
-        <p>Loading...</p>
+        <Spinner label="Loading today's goals" />
       ) : (
         <>
           <section>

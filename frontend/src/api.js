@@ -39,6 +39,12 @@ export const api = {
 
   getSettings: () => request(`/settings`),
   updateSettings: (body) => request(`/settings`, { method: "PUT", body: JSON.stringify(body) }),
+
+  getTimetable: () => request(`/timetable`),
+  createTimetableSlot: (body) => request(`/timetable`, { method: "POST", body: JSON.stringify(body) }),
+  updateTimetableSlot: (id, body) =>
+    request(`/timetable/${id}`, { method: "PATCH", body: JSON.stringify(body) }),
+  deleteTimetableSlot: (id) => request(`/timetable/${id}`, { method: "DELETE" }),
 };
 
 export { getToken };

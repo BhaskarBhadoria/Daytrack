@@ -7,6 +7,7 @@ import goalsRoutes from "./routes/goals.js";
 import sleepRoutes from "./routes/sleep.js";
 import reportsRoutes from "./routes/reports.js";
 import settingsRoutes from "./routes/settings.js";
+import timetableRoutes from "./routes/timetable.js";
 
 dotenv.config();
 
@@ -21,6 +22,7 @@ app.use("/api/goals", goalsRoutes);
 app.use("/api/sleep", sleepRoutes);
 app.use("/api/reports", reportsRoutes);
 app.use("/api/settings", settingsRoutes);
+app.use("/api/timetable", timetableRoutes);
 
 const PORT = process.env.PORT || 4000;
 

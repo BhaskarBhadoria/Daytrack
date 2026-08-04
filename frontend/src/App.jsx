@@ -8,6 +8,8 @@ import SleepLog from "./pages/SleepLog.jsx";
 import WeeklyReport from "./pages/WeeklyReport.jsx";
 import MonthlyView from "./pages/MonthlyView.jsx";
 import Settings from "./pages/Settings.jsx";
+import Timetable from "./pages/Timetable.jsx";
+import Avatar from "./components/Avatar.jsx";
 
 function PrivateRoute({ children }) {
   const { user } = useAuth();
@@ -24,13 +26,15 @@ function NavBar() {
       <div className="navbar-brand">DayTrack</div>
       <div className="navbar-links">
         <Link to="/">Today</Link>
+        <Link to="/timetable">Timetable</Link>
         <Link to="/sleep">Sleep</Link>
         <Link to="/report">Weekly Report</Link>
         <Link to="/monthly">Monthly</Link>
         <Link to="/settings">Settings</Link>
       </div>
       <div className="navbar-user">
-        <span>Hi, {user.name}</span>
+        <Avatar name={user.name} size={32} />
+        <span>{user.name}</span>
         <button
           onClick={() => {
             logout();
@@ -80,6 +84,14 @@ export default function App() {
             element={
               <PrivateRoute>
                 <WeeklyReport />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/timetable"
+            element={
+              <PrivateRoute>
+                <Timetable />
               </PrivateRoute>
             }
           />
