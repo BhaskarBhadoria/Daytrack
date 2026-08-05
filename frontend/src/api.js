@@ -56,6 +56,40 @@ export const api = {
   syncTimetableToGoogle: () => request(`/google/sync-timetable`, { method: "POST" }),
   syncGoalsToGoogle: (date) =>
     request(`/google/sync-goals`, { method: "POST", body: JSON.stringify({ date }) }),
+
+  getSubjects: () => request(`/attendance/subjects`),
+  createSubject: (name) => request(`/attendance/subjects`, { method: "POST", body: JSON.stringify({ name }) }),
+  deleteSubject: (id) => request(`/attendance/subjects/${id}`, { method: "DELETE" }),
+  getAttendanceRecords: (date) => request(`/attendance/records?date=${date}`),
+  saveAttendanceRecord: (subject_id, date, status) =>
+    request(`/attendance/records`, { method: "POST", body: JSON.stringify({ subject_id, date, status }) }),
+  getAttendanceSummary: () => request(`/attendance/summary`),
+
+  getCustomSyllabus: () => request(`/syllabus/custom`),
+  addCustomSubject: (subject_key, name) =>
+    request(`/syllabus/custom/subjects`, { method: "POST", body: JSON.stringify({ subject_key, name }) }),
+  deleteCustomSubject: (subject_key) =>
+    request(`/syllabus/custom/subjects/${encodeURIComponent(subject_key)}`, { method: "DELETE" }),
+  addCustomTopic: (subject_key, title) =>
+    request(`/syllabus/custom/topics`, { method: "POST", body: JSON.stringify({ subject_key, title }) }),
+  deleteCustomTopic: (id) => request(`/syllabus/custom/topics/${id}`, { method: "DELETE" }),
 };
+
+export async function downloadExport() {
+  const token = getToken();
+  const res = await fetch(`${API_URL}/export`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  if (!res.ok) throw new Error("Export failed");
+  const blob = await res.blob();
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = `daytrack-export-${new Date().toISOString().slice(0, 10)}.json`;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
+}
 
 export { getToken };

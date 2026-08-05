@@ -5,11 +5,11 @@ import { requireAuth } from "../middleware/authMiddleware.js";
 const router = Router();
 router.use(requireAuth);
 
-// GET /api/timetable — all recurring slots, sorted by start time
+// GET /api/timetable — all recurring slots, sorted by day then start time
 router.get("/", async (req, res) => {
   try {
     const result = await pool.query(
-      "SELECT * FROM timetable_slots WHERE user_id = $1 ORDER BY start_time",
+      "SELECT * FROM timetable_slots WHERE user_id = $1 ORDER BY day_of_week NULLS FIRST, start_time",
       [req.userId]
     );
     res.json(result.rows);
@@ -19,17 +19,18 @@ router.get("/", async (req, res) => {
   }
 });
 
-// POST /api/timetable  { title, category, start_time, end_time }
+// POST /api/timetable  { title, category, start_time, end_time, day_of_week }
+// day_of_week: 0-6 (0=Sunday) for a specific day, or null/omitted for "every day".
 router.post("/", async (req, res) => {
   try {
-    const { title, category = "general", start_time, end_time } = req.body;
+    const { title, category = "general", start_time, end_time, day_of_week = null } = req.body;
     if (!title || !start_time || !end_time) {
       return res.status(400).json({ error: "title, start_time, end_time are required" });
     }
     const result = await pool.query(
-      `INSERT INTO timetable_slots (user_id, title, category, start_time, end_time)
-       VALUES ($1, $2, $3, $4, $5) RETURNING *`,
-      [req.userId, title, category, start_time, end_time]
+      `INSERT INTO timetable_slots (user_id, title, category, start_time, end_time, day_of_week)
+       VALUES ($1, $2, $3, $4, $5, $6) RETURNING *`,
+      [req.userId, title, category, start_time, end_time, day_of_week]
     );
     res.status(201).json(result.rows[0]);
   } catch (err) {
@@ -49,15 +50,16 @@ router.patch("/:id", async (req, res) => {
     if (existing.rows.length === 0) return res.status(404).json({ error: "Slot not found" });
 
     const current = existing.rows[0];
-    const { title, category, start_time, end_time } = req.body;
+    const { title, category, start_time, end_time, day_of_week } = req.body;
     const result = await pool.query(
-      `UPDATE timetable_slots SET title = $1, category = $2, start_time = $3, end_time = $4
-       WHERE id = $5 AND user_id = $6 RETURNING *`,
+      `UPDATE timetable_slots SET title = $1, category = $2, start_time = $3, end_time = $4, day_of_week = $5
+       WHERE id = $6 AND user_id = $7 RETURNING *`,
       [
         title ?? current.title,
         category ?? current.category,
         start_time ?? current.start_time,
         end_time ?? current.end_time,
+        day_of_week !== undefined ? day_of_week : current.day_of_week,
         id,
         req.userId,
       ]

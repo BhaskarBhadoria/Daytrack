@@ -61,6 +61,47 @@ CREATE TABLE IF NOT EXISTS timetable_slots (
 
 CREATE INDEX IF NOT EXISTS idx_timetable_user ON timetable_slots(user_id, start_time);
 
+-- NULL day_of_week = applies every day. 0=Sunday ... 6=Saturday, matching JS Date.getDay().
+ALTER TABLE timetable_slots ADD COLUMN IF NOT EXISTS day_of_week INTEGER;
+
+CREATE TABLE IF NOT EXISTS subjects (
+  id SERIAL PRIMARY KEY,
+  user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  name TEXT NOT NULL,
+  created_at TIMESTAMP DEFAULT NOW(),
+  UNIQUE(user_id, name)
+);
+
+CREATE TABLE IF NOT EXISTS attendance_records (
+  id SERIAL PRIMARY KEY,
+  user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  subject_id INTEGER NOT NULL REFERENCES subjects(id) ON DELETE CASCADE,
+  record_date DATE NOT NULL,
+  status TEXT NOT NULL CHECK (status IN ('present', 'absent', 'cancelled')),
+  created_at TIMESTAMP DEFAULT NOW(),
+  UNIQUE(user_id, subject_id, record_date)
+);
+
+CREATE INDEX IF NOT EXISTS idx_attendance_user_date ON attendance_records(user_id, record_date);
+
+-- Lets users extend the built-in syllabus with their own subjects/topics.
+CREATE TABLE IF NOT EXISTS custom_syllabus_subjects (
+  id SERIAL PRIMARY KEY,
+  user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  subject_key TEXT NOT NULL,
+  name TEXT NOT NULL,
+  created_at TIMESTAMP DEFAULT NOW(),
+  UNIQUE(user_id, subject_key)
+);
+
+CREATE TABLE IF NOT EXISTS custom_syllabus_topics (
+  id SERIAL PRIMARY KEY,
+  user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  subject_key TEXT NOT NULL,
+  title TEXT NOT NULL,
+  created_at TIMESTAMP DEFAULT NOW()
+);
+
 -- Tracks which UPSC syllabus topics the user has completed. The syllabus tree
 -- itself lives as static data in the frontend; this just stores checked state.
 CREATE TABLE IF NOT EXISTS syllabus_progress (

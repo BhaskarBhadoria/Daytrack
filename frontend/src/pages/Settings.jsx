@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { api } from "../api.js";
+import { api, downloadExport } from "../api.js";
 
 function todayStr() {
   return new Date().toISOString().slice(0, 10);
@@ -208,6 +208,14 @@ export default function Settings() {
           </div>
         </div>
       )}
+
+      <h1 className="settings-section-title">Backup your data</h1>
+      <div className="notice-box">
+        <p>Download everything — goals, sleep, attendance, timetable, syllabus progress — as one JSON file.</p>
+        <button onClick={() => downloadExport().catch((err) => setError(err.message))}>
+          Export my data
+        </button>
+      </div>
     </div>
   );
 }

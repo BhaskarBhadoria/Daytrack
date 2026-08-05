@@ -80,7 +80,10 @@ async function getCalendarClient(userId) {
   return google.calendar({ version: "v3", auth: client });
 }
 
-// POST /api/google/sync-timetable — pushes recurring daily events, one per timetable block.
+const WEEKDAY_CODES = ["SU", "MO", "TU", "WE", "TH", "FR", "SA"];
+
+// POST /api/google/sync-timetable — pushes recurring events, one per timetable block.
+// Blocks with no day_of_week recur daily; day-specific blocks recur weekly on that day.
 router.post("/sync-timetable", requireAuth, async (req, res) => {
   try {
     const calendar = await getCalendarClient(req.userId);
@@ -93,15 +96,27 @@ router.post("/sync-timetable", requireAuth, async (req, res) => {
 
     let created = 0;
     let updated = 0;
-    const todayStr = new Date().toISOString().slice(0, 10);
 
     for (const slot of slots.rows) {
+      // Anchor the event on the next occurrence of its day (or today, if it recurs daily).
+      const anchor = new Date();
+      if (slot.day_of_week !== null && slot.day_of_week !== undefined) {
+        const diff = (slot.day_of_week - anchor.getDay() + 7) % 7;
+        anchor.setDate(anchor.getDate() + diff);
+      }
+      const anchorStr = anchor.toISOString().slice(0, 10);
+
+      const recurrence =
+        slot.day_of_week !== null && slot.day_of_week !== undefined
+          ? [`RRULE:FREQ=WEEKLY;BYDAY=${WEEKDAY_CODES[slot.day_of_week]}`]
+          : ["RRULE:FREQ=DAILY"];
+
       const eventBody = {
         summary: slot.title,
-        description: `DayTrack recurring block${slot.category !== "general" ? ` — ${slot.category}` : ""}`,
-        start: { dateTime: `${todayStr}T${slot.start_time}:00`, timeZone: "Asia/Kolkata" },
-        end: { dateTime: `${todayStr}T${slot.end_time}:00`, timeZone: "Asia/Kolkata" },
-        recurrence: ["RRULE:FREQ=DAILY"],
+        description: `DayTrack timetable block${slot.category !== "general" ? ` — ${slot.category}` : ""}`,
+        start: { dateTime: `${anchorStr}T${slot.start_time}:00`, timeZone: "Asia/Kolkata" },
+        end: { dateTime: `${anchorStr}T${slot.end_time}:00`, timeZone: "Asia/Kolkata" },
+        recurrence,
         extendedProperties: { private: { daytrack_slot_id: String(slot.id) } },
       };
 

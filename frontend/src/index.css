@@ -356,6 +356,68 @@ section h2 {
 }
 @keyframes spin { to { transform: rotate(360deg); } }
 
+/* ---------- Day tabs (timetable) ---------- */
+.day-tabs { display: flex; gap: 6px; margin-bottom: 16px; flex-wrap: wrap; }
+.day-tab {
+  padding: 8px 16px; border: 1px solid var(--border); border-radius: 999px; background: var(--surface);
+  color: var(--text-soft); font-weight: 700; font-size: 0.85rem; cursor: pointer;
+  transition: all 0.15s ease;
+}
+.day-tab:hover { border-color: var(--cyan); color: var(--cyan-dark); }
+.day-tab.active { background: var(--cyan-dark); border-color: var(--cyan-dark); color: white; }
+
+.timetable-form select {
+  padding: 10px; border: 1px solid var(--border); border-radius: 7px; background: var(--bg); color: var(--text);
+}
+
+/* ---------- Attendance ---------- */
+.attendance-list { list-style: none; padding: 0; margin: 0 0 20px; display: flex; flex-direction: column; gap: 8px; }
+.attendance-row {
+  display: flex; align-items: center; gap: 14px; background: var(--surface); border: 1px solid var(--border);
+  border-radius: 9px; padding: 12px 14px; flex-wrap: wrap; transition: box-shadow 0.15s ease;
+}
+.attendance-row:hover { box-shadow: var(--shadow); }
+.attendance-name { font-weight: 700; min-width: 130px; flex: 1; }
+.attendance-buttons { display: flex; gap: 6px; }
+.att-btn {
+  padding: 7px 13px; border-radius: 7px; border: 1px solid var(--border); background: var(--bg);
+  color: var(--text-soft); font-weight: 700; font-size: 0.8rem; cursor: pointer; transition: all 0.15s ease;
+}
+.att-btn.present:hover, .att-btn.present.active { background: var(--success-bg); border-color: var(--success); color: var(--success); }
+.att-btn.absent:hover, .att-btn.absent.active { background: var(--danger-bg); border-color: var(--danger); color: var(--danger); }
+.att-btn.cancelled:hover, .att-btn.cancelled.active { background: var(--cyan-pale); border-color: var(--cyan); color: var(--cyan-dark); }
+.attendance-fine-print { font-size: 0.68rem; color: var(--text-faint); margin-top: 6px; text-align: center; }
+
+/* ---------- Syllabus editing ---------- */
+.syllabus-toolbar { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 20px; }
+.syllabus-toolbar .syllabus-search { flex: 2; min-width: 220px; margin-bottom: 0; }
+.add-subject-form { display: flex; gap: 8px; flex: 1; min-width: 240px; }
+.add-subject-form input {
+  flex: 1; padding: 11px 14px; border: 1px solid var(--border); border-radius: 9px; background: var(--surface);
+}
+.add-subject-form input:focus { outline: none; border-color: var(--cyan); box-shadow: 0 0 0 3px var(--cyan-light); }
+.add-subject-form button {
+  padding: 10px 16px; background: var(--cyan-dark); color: white; border: none; border-radius: 9px;
+  font-weight: 700; cursor: pointer; transition: background 0.15s ease;
+}
+.add-subject-form button:hover { background: var(--cyan-darker); }
+
+.add-topic-row { display: flex; gap: 8px; align-items: center; padding: 6px 16px 14px; flex-wrap: wrap; }
+.add-topic-row input {
+  flex: 1; min-width: 160px; padding: 8px 10px; border: 1px solid var(--border); border-radius: 7px;
+  background: var(--bg); font-size: 0.88rem;
+}
+.add-topic-row input:focus { outline: none; border-color: var(--cyan); box-shadow: 0 0 0 3px var(--cyan-light); }
+.add-topic-row button {
+  padding: 8px 14px; background: var(--cyan-pale); color: var(--cyan-darker); border: 1px solid var(--cyan-light);
+  border-radius: 7px; font-weight: 700; font-size: 0.82rem; cursor: pointer; transition: background 0.15s ease;
+}
+.add-topic-row button:hover { background: var(--cyan-light); }
+.danger-link {
+  background: none; border: none; color: var(--danger); font-size: 0.8rem; font-weight: 700;
+  cursor: pointer; text-decoration: underline; margin-left: auto;
+}
+
 /* ---------- Responsive: sidebar becomes bottom bar ---------- */
 @media (max-width: 760px) {
   .app-shell.with-sidebar { flex-direction: column; }

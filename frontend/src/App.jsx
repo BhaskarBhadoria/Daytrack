@@ -6,6 +6,7 @@ import {
   BarChart3,
   CalendarDays,
   BookOpenCheck,
+  ClipboardCheck,
   Settings as SettingsIcon,
   LogOut,
 } from "lucide-react";
@@ -20,11 +21,13 @@ import MonthlyView from "./pages/MonthlyView.jsx";
 import Settings from "./pages/Settings.jsx";
 import Timetable from "./pages/Timetable.jsx";
 import Syllabus from "./pages/Syllabus.jsx";
+import Attendance from "./pages/Attendance.jsx";
 import Avatar from "./components/Avatar.jsx";
 
 const NAV_ITEMS = [
   { to: "/", label: "Today", icon: CalendarCheck2 },
   { to: "/timetable", label: "Timetable", icon: Clock4 },
+  { to: "/attendance", label: "Attendance", icon: ClipboardCheck },
   { to: "/sleep", label: "Sleep", icon: Moon },
   { to: "/report", label: "Weekly", icon: BarChart3 },
   { to: "/monthly", label: "Monthly", icon: CalendarDays },
@@ -130,6 +133,14 @@ function AppShell() {
             element={
               <PrivateRoute>
                 <Timetable />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/attendance"
+            element={
+              <PrivateRoute>
+                <Attendance />
               </PrivateRoute>
             }
           />
