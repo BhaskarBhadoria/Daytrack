@@ -1,4 +1,5 @@
 import { BrowserRouter, Routes, Route, Navigate, Link, useLocation, useNavigate } from "react-router-dom";
+import { useEffect } from "react";
 import {
   CalendarCheck2,
   Clock4,
@@ -110,15 +111,23 @@ function ReminderRunner() {
 function AppShell() {
   const { user } = useAuth();
   const { theme } = useTheme();
-  const doodleColor = theme === "dark" ? "#2b332e" : "#e7f0ec";
-  const doodleStyle = user
-    ? { backgroundImage: getDailyDoodleDataUri(doodleColor), backgroundRepeat: "repeat" }
-    : undefined;
+
+  useEffect(() => {
+    if (!user) {
+      document.body.style.backgroundImage = "";
+      return;
+    }
+    const doodleColor = theme === "dark" ? "#4a5a50" : "#bcdbc9";
+    document.body.style.backgroundImage = getDailyDoodleDataUri(doodleColor);
+    document.body.style.backgroundRepeat = "repeat";
+    document.body.style.backgroundSize = "700px 700px";
+    document.body.style.backgroundAttachment = "fixed";
+  }, [user, theme]);
 
   return (
     <div className={user ? "app-shell with-sidebar" : "app-shell"}>
       <Sidebar />
-      <main className="page-container" style={doodleStyle}>
+      <main className="page-container">
         <Routes>
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
