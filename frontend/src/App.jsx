@@ -111,7 +111,6 @@ function ReminderRunner() {
 function AppShell() {
   const { user } = useAuth();
   const { theme } = useTheme();
-<<<<<<< HEAD
 
   useEffect(() => {
     if (!user) {
@@ -124,7 +123,6 @@ function AppShell() {
     document.body.style.backgroundSize = "700px 700px";
     document.body.style.backgroundAttachment = "fixed";
   }, [user, theme]);
-=======
   const doodleColor = theme === "dark" ? "#39453d" : "#d3e6dc";
   const doodleStyle = user
     ? {
@@ -133,7 +131,7 @@ function AppShell() {
         backgroundSize: "480px 480px",
       }
     : undefined;
->>>>>>> 93469d1b5d39f2b6d184b5ce69c5c1ce71ffed75
+
 
   return (
     <div className={user ? "app-shell with-sidebar" : "app-shell"} style={doodleStyle}>
