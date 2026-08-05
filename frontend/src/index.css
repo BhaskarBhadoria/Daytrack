@@ -129,7 +129,7 @@ button { font-family: var(--font-body); }
   flex-shrink: 0;
 }
 
-.page-container { flex: 1; max-width: 880px; margin: 0 auto; padding: 34px 30px 80px; width: 100%; background-size: 400px 400px; }
+.page-container { flex: 1; max-width: 880px; margin: 0 auto; padding: 34px 30px 80px; width: 100%; }
 .app-shell:not(.with-sidebar) .page-container { max-width: 100%; padding: 0; }
 
 /* ---------- Auth pages (with daily NASA photo backdrop) ---------- */

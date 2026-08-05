@@ -110,15 +110,19 @@ function ReminderRunner() {
 function AppShell() {
   const { user } = useAuth();
   const { theme } = useTheme();
-  const doodleColor = theme === "dark" ? "#2b332e" : "#e7f0ec";
+  const doodleColor = theme === "dark" ? "#39453d" : "#d3e6dc";
   const doodleStyle = user
-    ? { backgroundImage: getDailyDoodleDataUri(doodleColor), backgroundRepeat: "repeat" }
+    ? {
+        backgroundImage: getDailyDoodleDataUri(doodleColor),
+        backgroundRepeat: "repeat",
+        backgroundSize: "480px 480px",
+      }
     : undefined;
 
   return (
-    <div className={user ? "app-shell with-sidebar" : "app-shell"}>
+    <div className={user ? "app-shell with-sidebar" : "app-shell"} style={doodleStyle}>
       <Sidebar />
-      <main className="page-container" style={doodleStyle}>
+      <main className="page-container">
         <Routes>
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
