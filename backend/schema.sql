@@ -102,6 +102,34 @@ CREATE TABLE IF NOT EXISTS custom_syllabus_topics (
   created_at TIMESTAMP DEFAULT NOW()
 );
 
+-- When a subject actually has class: e.g. Polity on Mon/Wed/Fri 10-11, DSP Lab
+-- only Tuesday 2-4. The Attendance page only asks about a subject on days it's
+-- scheduled, instead of showing every subject every day.
+CREATE TABLE IF NOT EXISTS subject_schedule (
+  id SERIAL PRIMARY KEY,
+  user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  subject_id INTEGER NOT NULL REFERENCES subjects(id) ON DELETE CASCADE,
+  day_of_week INTEGER NOT NULL, -- 0=Sunday ... 6=Saturday
+  start_time TEXT NOT NULL,
+  end_time TEXT NOT NULL,
+  created_at TIMESTAMP DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS idx_subject_schedule_user ON subject_schedule(user_id, day_of_week);
+
+-- Small file storage (notes, PDFs) stored directly as base64 — kept intentionally
+-- small-scale (a few MB per file, enforced in the route) since there's no
+-- separate object storage configured.
+CREATE TABLE IF NOT EXISTS uploaded_files (
+  id SERIAL PRIMARY KEY,
+  user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  filename TEXT NOT NULL,
+  mime_type TEXT NOT NULL,
+  size_bytes INTEGER NOT NULL,
+  data_base64 TEXT NOT NULL,
+  uploaded_at TIMESTAMP DEFAULT NOW()
+);
+
 -- Tracks which UPSC syllabus topics the user has completed. The syllabus tree
 -- itself lives as static data in the frontend; this just stores checked state.
 CREATE TABLE IF NOT EXISTS syllabus_progress (

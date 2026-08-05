@@ -130,4 +130,52 @@ router.get("/summary", async (req, res) => {
   }
 });
 
+// ---------- Schedule (which days/hours each subject actually has class) ----------
+
+router.get("/schedule", async (req, res) => {
+  try {
+    const result = await pool.query(
+      "SELECT * FROM subject_schedule WHERE user_id = $1 ORDER BY day_of_week, start_time",
+      [req.userId]
+    );
+    res.json(result.rows);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Failed to fetch schedule" });
+  }
+});
+
+// POST /api/attendance/schedule  { subject_id, day_of_week, start_time, end_time }
+router.post("/schedule", async (req, res) => {
+  try {
+    const { subject_id, day_of_week, start_time, end_time } = req.body;
+    if (subject_id === undefined || day_of_week === undefined || !start_time || !end_time) {
+      return res.status(400).json({ error: "subject_id, day_of_week, start_time, end_time are required" });
+    }
+    const result = await pool.query(
+      `INSERT INTO subject_schedule (user_id, subject_id, day_of_week, start_time, end_time)
+       VALUES ($1, $2, $3, $4, $5) RETURNING *`,
+      [req.userId, subject_id, day_of_week, start_time, end_time]
+    );
+    res.status(201).json(result.rows[0]);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Failed to create schedule entry" });
+  }
+});
+
+router.delete("/schedule/:id", async (req, res) => {
+  try {
+    const result = await pool.query(
+      "DELETE FROM subject_schedule WHERE id = $1 AND user_id = $2 RETURNING id",
+      [req.params.id, req.userId]
+    );
+    if (result.rows.length === 0) return res.status(404).json({ error: "Schedule entry not found" });
+    res.json({ success: true });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Failed to delete schedule entry" });
+  }
+});
+
 export default router;

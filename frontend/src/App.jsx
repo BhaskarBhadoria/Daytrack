@@ -7,11 +7,16 @@ import {
   CalendarDays,
   BookOpenCheck,
   ClipboardCheck,
+  FileText,
   Settings as SettingsIcon,
   LogOut,
+  Sun,
+  MoonStar,
 } from "lucide-react";
 import { useAuth } from "./context/AuthContext.jsx";
+import { useTheme } from "./context/ThemeContext.jsx";
 import { useReminders } from "./hooks/useReminders.js";
+import { getDailyDoodleDataUri } from "./utils/dailyDoodle.js";
 import Login from "./pages/Login.jsx";
 import Signup from "./pages/Signup.jsx";
 import Dashboard from "./pages/Dashboard.jsx";
@@ -22,6 +27,7 @@ import Settings from "./pages/Settings.jsx";
 import Timetable from "./pages/Timetable.jsx";
 import Syllabus from "./pages/Syllabus.jsx";
 import Attendance from "./pages/Attendance.jsx";
+import Files from "./pages/Files.jsx";
 import Avatar from "./components/Avatar.jsx";
 
 const NAV_ITEMS = [
@@ -32,6 +38,7 @@ const NAV_ITEMS = [
   { to: "/report", label: "Weekly", icon: BarChart3 },
   { to: "/monthly", label: "Monthly", icon: CalendarDays },
   { to: "/syllabus", label: "Syllabus", icon: BookOpenCheck },
+  { to: "/files", label: "Files", icon: FileText },
 ];
 
 function PrivateRoute({ children }) {
@@ -41,6 +48,7 @@ function PrivateRoute({ children }) {
 
 function Sidebar() {
   const { user, logout } = useAuth();
+  const { theme, toggleTheme } = useTheme();
   const navigate = useNavigate();
   const location = useLocation();
   if (!user) return null;
@@ -69,6 +77,10 @@ function Sidebar() {
           <SettingsIcon size={18} strokeWidth={2} />
           <span>Settings</span>
         </Link>
+        <button className="sidebar-link theme-toggle" onClick={toggleTheme} type="button">
+          {theme === "dark" ? <Sun size={18} strokeWidth={2} /> : <MoonStar size={18} strokeWidth={2} />}
+          <span>{theme === "dark" ? "Light mode" : "Dark mode"}</span>
+        </button>
       </div>
 
       <div className="sidebar-footer">
@@ -97,10 +109,16 @@ function ReminderRunner() {
 
 function AppShell() {
   const { user } = useAuth();
+  const { theme } = useTheme();
+  const doodleColor = theme === "dark" ? "#2b332e" : "#e7f0ec";
+  const doodleStyle = user
+    ? { backgroundImage: getDailyDoodleDataUri(doodleColor), backgroundRepeat: "repeat" }
+    : undefined;
+
   return (
     <div className={user ? "app-shell with-sidebar" : "app-shell"}>
       <Sidebar />
-      <main className="page-container">
+      <main className="page-container" style={doodleStyle}>
         <Routes>
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
@@ -157,6 +175,14 @@ function AppShell() {
             element={
               <PrivateRoute>
                 <Syllabus />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/files"
+            element={
+              <PrivateRoute>
+                <Files />
               </PrivateRoute>
             }
           />

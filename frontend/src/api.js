@@ -65,6 +65,19 @@ export const api = {
     request(`/attendance/records`, { method: "POST", body: JSON.stringify({ subject_id, date, status }) }),
   getAttendanceSummary: () => request(`/attendance/summary`),
 
+  getSchedule: () => request(`/attendance/schedule`),
+  addScheduleEntry: (subject_id, day_of_week, start_time, end_time) =>
+    request(`/attendance/schedule`, {
+      method: "POST",
+      body: JSON.stringify({ subject_id, day_of_week, start_time, end_time }),
+    }),
+  deleteScheduleEntry: (id) => request(`/attendance/schedule/${id}`, { method: "DELETE" }),
+
+  getFiles: () => request(`/files`),
+  uploadFile: (filename, mime_type, data_base64) =>
+    request(`/files`, { method: "POST", body: JSON.stringify({ filename, mime_type, data_base64 }) }),
+  deleteFile: (id) => request(`/files/${id}`, { method: "DELETE" }),
+
   getCustomSyllabus: () => request(`/syllabus/custom`),
   addCustomSubject: (subject_key, name) =>
     request(`/syllabus/custom/subjects`, { method: "POST", body: JSON.stringify({ subject_key, name }) }),
@@ -86,6 +99,23 @@ export async function downloadExport() {
   const a = document.createElement("a");
   a.href = url;
   a.download = `daytrack-export-${new Date().toISOString().slice(0, 10)}.json`;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
+}
+
+export async function downloadFile(id, filename) {
+  const token = getToken();
+  const res = await fetch(`${API_URL}/files/${id}/download`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  if (!res.ok) throw new Error("Download failed");
+  const blob = await res.blob();
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = filename;
   document.body.appendChild(a);
   a.click();
   a.remove();
