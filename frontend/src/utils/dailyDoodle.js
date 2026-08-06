@@ -67,8 +67,7 @@ const PATTERNS = [
 ];
 
 export function getDailyDoodleDataUri(colorHex) {
-  const encodedColor = encodeURIComponent(colorHex);
-  const pattern = PATTERNS[dayIndex() % PATTERNS.length](encodedColor);
+  const pattern = PATTERNS[dayIndex() % PATTERNS.length](colorHex);
   const encoded = encodeURIComponent(pattern.replace(/\s+/g, " ").trim());
   return `url("data:image/svg+xml,${encoded}")`;
 }
