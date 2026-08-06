@@ -1,11 +1,14 @@
 import { useEffect, useState } from "react";
 import { api, downloadExport } from "../api.js";
+import { useDoodlePreference } from "../context/DoodleContext.jsx";
+import { DOODLE_PATTERNS } from "../utils/dailyDoodle.js";
 
 function todayStr() {
   return new Date().toISOString().slice(0, 10);
 }
 
 export default function Settings() {
+  const { pattern, setPattern } = useDoodlePreference();
   const [settings, setSettings] = useState(null);
   const [permission, setPermission] = useState(
     typeof Notification !== "undefined" ? Notification.permission : "unsupported"
@@ -172,6 +175,22 @@ export default function Settings() {
         {success && <p className="success">{success}</p>}
         <button type="submit">Save reminders</button>
       </form>
+
+      <h1 className="settings-section-title">Background pattern</h1>
+      <div className="settings-form">
+        <div className="settings-row">
+          <span>Choose the subtle background doodle, or turn it off entirely.</span>
+          <select value={pattern} onChange={(e) => setPattern(e.target.value)}>
+            <option value="auto">Auto (changes daily)</option>
+            {DOODLE_PATTERNS.map((p) => (
+              <option key={p.id} value={p.id}>
+                {p.label}
+              </option>
+            ))}
+            <option value="none">None</option>
+          </select>
+        </div>
+      </div>
 
       <h1 className="settings-section-title">Google Calendar</h1>
       <div className="notice-box">

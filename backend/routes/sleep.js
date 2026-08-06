@@ -54,4 +54,18 @@ router.post("/", async (req, res) => {
   }
 });
 
+router.delete("/:id", async (req, res) => {
+  try {
+    const result = await pool.query(
+      "DELETE FROM sleep_logs WHERE id = $1 AND user_id = $2 RETURNING id",
+      [req.params.id, req.userId]
+    );
+    if (result.rows.length === 0) return res.status(404).json({ error: "Sleep log not found" });
+    res.json({ success: true });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Failed to delete sleep log" });
+  }
+});
+
 export default router;

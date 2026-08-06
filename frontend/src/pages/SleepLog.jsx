@@ -42,17 +42,34 @@ export default function SleepLog() {
     setError("");
     setSuccess("");
     try {
-      // Bed time is the night before the wake-up date.
-      const bedDate = new Date(logDate);
-      bedDate.setDate(bedDate.getDate() - 1);
-      const bedDateStr = bedDate.toISOString().slice(0, 10);
+      // Build dates from explicit numeric components (year, month, day, hour, minute)
+      // rather than parsing date-time strings — string parsing has real
+      // browser-to-browser inconsistencies around whether an unqualified
+      // string is treated as UTC or local time. Explicit components are
+      // always unambiguous local time.
+      const [wakeY, wakeM, wakeD] = logDate.split("-").map(Number);
+      const [bedH, bedMin] = bedTime.split(":").map(Number);
+      const [wakeH, wakeMin] = wakeTime.split(":").map(Number);
 
-      const bed_time = new Date(`${bedDateStr}T${bedTime}:00`).toISOString();
-      const wake_time = new Date(`${logDate}T${wakeTime}:00`).toISOString();
+      // Bed time is the night before the wake-up date.
+      const bedDateObj = new Date(wakeY, wakeM - 1, wakeD - 1, bedH, bedMin, 0);
+      const wakeDateObj = new Date(wakeY, wakeM - 1, wakeD, wakeH, wakeMin, 0);
+
+      const bed_time = bedDateObj.toISOString();
+      const wake_time = wakeDateObj.toISOString();
 
       await api.logSleep({ log_date: logDate, bed_time, wake_time, quality: Number(quality) });
       setSuccess("Sleep logged!");
       loadRecentLogs();
+    } catch (err) {
+      setError(err.message);
+    }
+  }
+
+  async function handleDelete(id) {
+    try {
+      await api.deleteSleepLog(id);
+      setLogs((prev) => prev.filter((l) => l.id !== id));
     } catch (err) {
       setError(err.message);
     }
@@ -100,6 +117,9 @@ export default function SleepLog() {
               <span className="sleep-date">{l.log_date.slice(0, 10)}</span>
               <span>{formatDuration(l.duration_minutes)}</span>
               {l.quality && <span className="tag">Quality {l.quality}/5</span>}
+              <button className="icon-btn" onClick={() => handleDelete(l.id)} title="Delete">
+                ✕
+              </button>
             </li>
           ))}
         </ul>

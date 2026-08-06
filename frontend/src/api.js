@@ -31,6 +31,7 @@ export const api = {
 
   getSleep: (start, end) => request(`/sleep?start=${start}&end=${end}`),
   logSleep: (body) => request("/sleep", { method: "POST", body: JSON.stringify(body) }),
+  deleteSleepLog: (id) => request(`/sleep/${id}`, { method: "DELETE" }),
 
   getWeeklyReport: (start) => request(`/reports/weekly?start=${start}`),
   getStreak: () => request(`/reports/streak`),

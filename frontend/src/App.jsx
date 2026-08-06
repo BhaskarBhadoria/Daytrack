@@ -16,6 +16,7 @@ import {
 } from "lucide-react";
 import { useAuth } from "./context/AuthContext.jsx";
 import { useTheme } from "./context/ThemeContext.jsx";
+import { useDoodlePreference } from "./context/DoodleContext.jsx";
 import { useReminders } from "./hooks/useReminders.js";
 import { getDailyDoodleDataUri } from "./utils/dailyDoodle.js";
 import Login from "./pages/Login.jsx";
@@ -111,18 +112,23 @@ function ReminderRunner() {
 function AppShell() {
   const { user } = useAuth();
   const { theme } = useTheme();
+  const { pattern } = useDoodlePreference();
 
   useEffect(() => {
     if (!user) {
       document.body.style.backgroundImage = "";
       return;
     }
+    if (pattern === "none") {
+      document.body.style.backgroundImage = "";
+      return;
+    }
     const doodleColor = theme === "dark" ? "#4a5a50" : "#bcdbc9";
-    document.body.style.backgroundImage = getDailyDoodleDataUri(doodleColor);
+    document.body.style.backgroundImage = getDailyDoodleDataUri(doodleColor, pattern);
     document.body.style.backgroundRepeat = "repeat";
     document.body.style.backgroundSize = "700px 700px";
     document.body.style.backgroundAttachment = "fixed";
-  }, [user, theme]);
+  }, [user, theme, pattern]);
 
   return (
     <div className={user ? "app-shell with-sidebar" : "app-shell"}>

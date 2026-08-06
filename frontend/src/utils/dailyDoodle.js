@@ -2,6 +2,14 @@
 // Deterministic on the date, so everyone sees the same "doodle of the day"
 // without needing any network request or server support.
 
+export const DOODLE_PATTERNS = [
+  { id: "contours", label: "Contour lines" },
+  { id: "dots", label: "Dot grid" },
+  { id: "mountains", label: "Mountains" },
+  { id: "waves", label: "Waves" },
+  { id: "leaves", label: "Leaves" },
+];
+
 function dayIndex() {
   const now = new Date();
   const start = new Date(now.getFullYear(), 0, 0);
@@ -66,8 +74,10 @@ const PATTERNS = [
     </svg>`,
 ];
 
-export function getDailyDoodleDataUri(colorHex) {
-  const pattern = PATTERNS[dayIndex() % PATTERNS.length](colorHex);
+export function getDailyDoodleDataUri(colorHex, choice = "auto") {
+  if (choice === "none") return "";
+  const index = choice === "auto" ? dayIndex() % PATTERNS.length : DOODLE_PATTERNS.findIndex((p) => p.id === choice);
+  const pattern = PATTERNS[index === -1 ? 0 : index](colorHex);
   const encoded = encodeURIComponent(pattern.replace(/\s+/g, " ").trim());
   return `url("data:image/svg+xml,${encoded}")`;
 }
