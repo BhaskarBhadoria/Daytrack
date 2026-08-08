@@ -1,4 +1,5 @@
 import { BrowserRouter, Routes, Route, Navigate, Link, useLocation, useNavigate } from "react-router-dom";
+import { useState } from "react";
 import {
   CalendarCheck2,
   Clock4,
@@ -13,6 +14,8 @@ import {
   LogOut,
   Sun,
   MoonStar,
+  ChevronsLeft,
+  ChevronsRight,
 } from "lucide-react";
 import { useAuth } from "./context/AuthContext.jsx";
 import { useTheme } from "./context/ThemeContext.jsx";
@@ -53,20 +56,31 @@ function Sidebar() {
   const { theme, toggleTheme } = useTheme();
   const navigate = useNavigate();
   const location = useLocation();
+  const [collapsed, setCollapsed] = useState(() => localStorage.getItem("daytrack_sidebar_collapsed") === "1");
   if (!user) return null;
 
+  function toggleCollapsed() {
+    setCollapsed((c) => {
+      localStorage.setItem("daytrack_sidebar_collapsed", !c ? "1" : "0");
+      return !c;
+    });
+  }
+
   return (
-    <nav className="sidebar">
+    <nav className={`sidebar ${collapsed ? "collapsed" : ""}`}>
       <div className="sidebar-brand">
         <span className="sidebar-brand-mark">◆</span>
         <span className="sidebar-brand-text">DayTrack</span>
+        <button className="sidebar-collapse-btn" onClick={toggleCollapsed} title={collapsed ? "Expand" : "Collapse"}>
+          {collapsed ? <ChevronsRight size={16} /> : <ChevronsLeft size={16} />}
+        </button>
       </div>
 
       <div className="sidebar-links">
         {NAV_ITEMS.map(({ to, label, icon: Icon }) => {
           const active = location.pathname === to;
           return (
-            <Link key={to} to={to} className={`sidebar-link ${active ? "active" : ""}`}>
+            <Link key={to} to={to} className={`sidebar-link ${active ? "active" : ""}`} title={label}>
               <Icon size={18} strokeWidth={2} />
               <span>{label}</span>
             </Link>
@@ -75,11 +89,12 @@ function Sidebar() {
         <Link
           to="/settings"
           className={`sidebar-link ${location.pathname === "/settings" ? "active" : ""}`}
+          title="Settings"
         >
           <SettingsIcon size={18} strokeWidth={2} />
           <span>Settings</span>
         </Link>
-        <button className="sidebar-link theme-toggle" onClick={toggleTheme} type="button">
+        <button className="sidebar-link theme-toggle" onClick={toggleTheme} type="button" title="Toggle theme">
           {theme === "dark" ? <Sun size={18} strokeWidth={2} /> : <MoonStar size={18} strokeWidth={2} />}
           <span>{theme === "dark" ? "Light mode" : "Dark mode"}</span>
         </button>

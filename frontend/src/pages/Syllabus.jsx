@@ -131,6 +131,7 @@ export default function Syllabus() {
 
   return (
     <div className="syllabus-page">
+      <p className="hero-greeting">Your syllabus, tracked</p>
       <h1>UPSC Syllabus Tracker</h1>
 
       <div className="syllabus-overall">

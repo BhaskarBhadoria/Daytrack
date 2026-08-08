@@ -63,11 +63,14 @@ export default function Journal() {
 
   return (
     <div className="journal-page">
-      <div className="dashboard-header">
-        <h1>Journal</h1>
+      <div className="dashboard-hero">
+        <div>
+          <p className="hero-greeting">Private space to write</p>
+          <h1>Journal</h1>
+        </div>
         <input type="date" value={date} onChange={(e) => setDate(e.target.value)} max={todayStr()} />
       </div>
-      <p className="empty">A private space to write whatever's on your mind — one entry per day.</p>
+      <p className="empty">One entry per day — whatever's on your mind.</p>
 
       {error && <p className="error">{error}</p>}
 

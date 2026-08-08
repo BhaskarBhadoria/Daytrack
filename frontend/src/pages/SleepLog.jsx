@@ -77,6 +77,7 @@ export default function SleepLog() {
 
   return (
     <div className="sleep-page">
+      <p className="hero-greeting">Rest matters too</p>
       <h1>Sleep Tracker</h1>
       <form className="sleep-form" onSubmit={handleSubmit}>
         <label>

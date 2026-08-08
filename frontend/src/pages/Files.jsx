@@ -67,8 +67,9 @@ export default function Files() {
 
   return (
     <div className="files-page">
+      <p className="hero-greeting">Small notes and documents</p>
       <h1>Files</h1>
-      <p className="empty">Small notes and documents — 3MB max per file.</p>
+      <p className="empty">3MB max per file.</p>
 
       <div className="notice-box">
         <p>{uploading ? "Uploading…" : "Choose a file to upload."}</p>

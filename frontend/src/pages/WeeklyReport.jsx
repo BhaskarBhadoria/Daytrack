@@ -16,7 +16,7 @@ import {
 } from "recharts";
 import { api } from "../api.js";
 
-const CATEGORY_COLORS = ["#4f46e5", "#22c55e", "#f97316", "#e11d48", "#0ea5e9", "#a855f7", "#64748b"];
+const CATEGORY_COLORS = ["#00adb5", "#393e46", "#d9a441", "#d0453d", "#7fd8dc", "#8a6fd4", "#2f8f5b"];
 
 function mondayOf(date) {
   const d = new Date(date);
@@ -71,8 +71,11 @@ export default function WeeklyReport() {
 
   return (
     <div className="report-page">
-      <div className="dashboard-header">
-        <h1>Weekly Report</h1>
+      <div className="dashboard-hero">
+        <div>
+          <p className="hero-greeting">This week</p>
+          <h1>Weekly Report</h1>
+        </div>
         <div className="week-nav">
           <button onClick={() => shiftWeek(-7)}>◀ Prev</button>
           <span>
@@ -86,74 +89,90 @@ export default function WeeklyReport() {
 
       {report && (
         <>
-          <div className="summary-cards">
-            <div className="card">
-              <span className="card-value">{report.summary.total_completed}</span>
-              <span className="card-label">Goals completed</span>
+          <div className="stat-row">
+            <div className="stat-card">
+              <span className="stat-icon">✅</span>
+              <div>
+                <span className="stat-value">{report.summary.total_completed}</span>
+                <span className="stat-label">Goals completed</span>
+              </div>
             </div>
-            <div className="card">
-              <span className="card-value">{report.summary.completion_rate}%</span>
-              <span className="card-label">Completion rate</span>
+            <div className="stat-card">
+              <span className="stat-icon">📈</span>
+              <div>
+                <span className="stat-value">{report.summary.completion_rate}%</span>
+                <span className="stat-label">Completion rate</span>
+              </div>
             </div>
-            <div className="card">
-              <span className="card-value">
-                {report.summary.avg_sleep_minutes
-                  ? `${Math.round((report.summary.avg_sleep_minutes / 60) * 10) / 10}h`
-                  : "—"}
-              </span>
-              <span className="card-label">Avg sleep</span>
+            <div className="stat-card">
+              <span className="stat-icon">🌙</span>
+              <div>
+                <span className="stat-value">
+                  {report.summary.avg_sleep_minutes
+                    ? `${Math.round((report.summary.avg_sleep_minutes / 60) * 10) / 10}h`
+                    : "—"}
+                </span>
+                <span className="stat-label">Avg sleep</span>
+              </div>
             </div>
           </div>
 
-          <h2>Goals completed per day</h2>
-          <ResponsiveContainer width="100%" height={280}>
-            <BarChart data={chartData}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="date" />
-              <YAxis allowDecimals={false} />
-              <Tooltip />
-              <Legend />
-              <Bar dataKey="planned" name="Planned done" fill="#4f46e5" />
-              <Bar dataKey="sameDay" name="Same-day done" fill="#22c55e" />
-            </BarChart>
-          </ResponsiveContainer>
-
-          <h2>Sleep duration</h2>
-          <ResponsiveContainer width="100%" height={240}>
-            <LineChart data={sleepData}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="date" />
-              <YAxis unit="h" />
-              <Tooltip />
-              <Line type="monotone" dataKey="hours" stroke="#f97316" strokeWidth={2} />
-            </LineChart>
-          </ResponsiveContainer>
-
-          {categories.length > 0 && (
-            <>
-              <h2>Goals by category</h2>
-              <ResponsiveContainer width="100%" height={280}>
-                <PieChart>
-                  <Pie
-                    data={categories}
-                    dataKey="total"
-                    nameKey="category"
-                    cx="50%"
-                    cy="50%"
-                    outerRadius={100}
-                    label={(entry) => `${entry.category} (${entry.total})`}
-                  >
-                    {categories.map((entry, idx) => (
-                      <Cell key={entry.category} fill={CATEGORY_COLORS[idx % CATEGORY_COLORS.length]} />
-                    ))}
-                  </Pie>
-                  <Tooltip
-                    formatter={(value, name, props) => [`${props.payload.completed}/${value} done`, props.payload.category]}
-                  />
-                </PieChart>
+          <div className="report-charts-grid">
+            <div className="chart-card">
+              <h2>Goals completed per day</h2>
+              <ResponsiveContainer width="100%" height={260}>
+                <BarChart data={chartData}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
+                  <XAxis dataKey="date" stroke="var(--text-soft)" />
+                  <YAxis allowDecimals={false} stroke="var(--text-soft)" />
+                  <Tooltip contentStyle={{ background: "var(--surface)", border: "1px solid var(--border)", borderRadius: 8 }} />
+                  <Legend />
+                  <Bar dataKey="planned" name="Planned done" fill="#00adb5" radius={[4, 4, 0, 0]} />
+                  <Bar dataKey="sameDay" name="Same-day done" fill="#393e46" radius={[4, 4, 0, 0]} />
+                </BarChart>
               </ResponsiveContainer>
-            </>
-          )}
+            </div>
+
+            {categories.length > 0 && (
+              <div className="chart-card">
+                <h2>Goals by category</h2>
+                <ResponsiveContainer width="100%" height={260}>
+                  <PieChart>
+                    <Pie
+                      data={categories}
+                      dataKey="total"
+                      nameKey="category"
+                      cx="50%"
+                      cy="50%"
+                      outerRadius={90}
+                      label={(entry) => `${entry.category} (${entry.total})`}
+                    >
+                      {categories.map((entry, idx) => (
+                        <Cell key={entry.category} fill={CATEGORY_COLORS[idx % CATEGORY_COLORS.length]} />
+                      ))}
+                    </Pie>
+                    <Tooltip
+                      contentStyle={{ background: "var(--surface)", border: "1px solid var(--border)", borderRadius: 8 }}
+                      formatter={(value, name, props) => [`${props.payload.completed}/${value} done`, props.payload.category]}
+                    />
+                  </PieChart>
+                </ResponsiveContainer>
+              </div>
+            )}
+          </div>
+
+          <div className="chart-card">
+            <h2>Sleep duration</h2>
+            <ResponsiveContainer width="100%" height={220}>
+              <LineChart data={sleepData}>
+                <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
+                <XAxis dataKey="date" stroke="var(--text-soft)" />
+                <YAxis unit="h" stroke="var(--text-soft)" />
+                <Tooltip contentStyle={{ background: "var(--surface)", border: "1px solid var(--border)", borderRadius: 8 }} />
+                <Line type="monotone" dataKey="hours" stroke="#00adb5" strokeWidth={2.5} dot={{ fill: "#00adb5" }} />
+              </LineChart>
+            </ResponsiveContainer>
+          </div>
         </>
       )}
     </div>

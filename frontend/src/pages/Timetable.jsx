@@ -86,6 +86,7 @@ export default function Timetable() {
 
   return (
     <div className="timetable-page">
+      <p className="hero-greeting">A schedule for every day</p>
       <h1>Daily Timetable</h1>
       <p className="empty">
         Different days can have different schedules — pick "Every day" for things that repeat daily.

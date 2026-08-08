@@ -127,6 +127,7 @@ export default function Attendance() {
 
   return (
     <div className="attendance-page">
+      <p className="hero-greeting">Track your classes</p>
       <h1>Attendance</h1>
 
       <form className="add-goal-form" onSubmit={handleAddSubject}>

@@ -115,6 +115,7 @@ export default function Settings() {
 
   return (
     <div className="settings-page">
+      <p className="hero-greeting">Preferences</p>
       <h1>Reminders</h1>
       <p className="empty">
         These fire as browser notifications while this tab is open. They won't reach you if your
