@@ -487,6 +487,40 @@ section h2 {
 .spinner { width: 18px; height: 18px; border-radius: 50%; border: 2.5px solid var(--border); border-top-color: var(--accent); animation: spin 0.7s linear infinite; }
 @keyframes spin { to { transform: rotate(360deg); } }
 
+/* ---------- Dashboard hero + stats ---------- */
+.dashboard-hero { display: flex; align-items: flex-end; justify-content: space-between; margin-bottom: 22px; flex-wrap: wrap; gap: 12px; }
+.hero-greeting { color: var(--text-soft); font-size: 0.95rem; margin: 0 0 2px; }
+.dashboard-hero h1 { font-size: 2.1rem; margin: 0; }
+.dashboard-hero input[type="date"] {
+  padding: 9px 10px; border-radius: var(--radius-sm); border: 1px solid var(--border);
+  background: var(--surface); font-family: var(--font-mono); color: var(--text);
+}
+
+.stat-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 26px; }
+.stat-card {
+  display: flex; align-items: center; gap: 12px; background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 16px; box-shadow: var(--shadow); transition: box-shadow 0.15s ease, transform 0.15s ease;
+}
+.stat-card:hover { box-shadow: var(--shadow-hover); transform: translateY(-2px); }
+.stat-icon { font-size: 1.8rem; width: 56px; text-align: center; flex-shrink: 0; }
+.stat-card > div { display: flex; flex-direction: column; min-width: 0; }
+.stat-value { font-family: var(--font-display); font-weight: 700; font-size: 1.15rem; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.stat-label { font-size: 0.72rem; color: var(--text-soft); text-transform: uppercase; letter-spacing: 0.04em; margin-top: 2px; }
+
+.dashboard-columns { display: grid; grid-template-columns: 1.4fr 1fr; gap: 24px; align-items: start; }
+.dashboard-col-side { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 18px; box-shadow: var(--shadow); position: sticky; top: 20px; }
+.dashboard-col-side h2 {
+  font-size: 1rem; color: var(--text-soft); margin: 0 0 12px; font-weight: 700;
+  text-transform: uppercase; letter-spacing: 0.05em; border-bottom: 1px solid var(--border); padding-bottom: 8px;
+}
+.timetable-slot.upcoming { border-left-color: var(--accent); background: var(--accent-pale); }
+
+@media (max-width: 900px) {
+  .stat-row { grid-template-columns: repeat(2, 1fr); }
+  .dashboard-columns { grid-template-columns: 1fr; }
+  .dashboard-col-side { position: static; }
+}
+
 /* ---------- Responsive: sidebar becomes bottom bar ---------- */
 @media (max-width: 760px) {
   .app-shell.with-sidebar { flex-direction: column; }
