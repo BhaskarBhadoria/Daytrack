@@ -38,6 +38,7 @@ function GoalItem({ goal, onToggle, onDelete }) {
 export default function Dashboard() {
   const [viewDate, setViewDate] = useState(todayStr());
   const [goals, setGoals] = useState([]);
+  const [schedule, setSchedule] = useState([]);
   const [loading, setLoading] = useState(true);
   const [newTitle, setNewTitle] = useState("");
   const [newCategory, setNewCategory] = useState("");
@@ -61,6 +62,13 @@ export default function Dashboard() {
   useEffect(() => {
     loadGoals(viewDate);
   }, [viewDate]);
+
+  useEffect(() => {
+    api
+      .getTimetable()
+      .then(setSchedule)
+      .catch(() => {});
+  }, []);
 
   async function handleAddGoal(e) {
     e.preventDefault();
@@ -98,6 +106,12 @@ export default function Dashboard() {
   const planned = goals.filter((g) => g.type === "planned");
   const sameDay = goals.filter((g) => g.type === "same_day");
   const completedCount = goals.filter((g) => g.is_completed).length;
+
+  const [viewY, viewM, viewD] = viewDate.split("-").map(Number);
+  const viewWeekday = new Date(viewY, viewM - 1, viewD).getDay();
+  const todaysSchedule = schedule
+    .filter((s) => s.day_of_week === null || s.day_of_week === viewWeekday)
+    .sort((a, b) => a.start_time.localeCompare(b.start_time));
 
   return (
     <div className="dashboard">
@@ -140,6 +154,23 @@ export default function Dashboard() {
       )}
 
       {error && <p className="error">{error}</p>}
+
+      {todaysSchedule.length > 0 && (
+        <section>
+          <h2>Schedule</h2>
+          <ul className="timetable-list">
+            {todaysSchedule.map((s) => (
+              <li key={s.id} className="timetable-slot readonly">
+                <span className="timetable-time">
+                  {s.start_time} – {s.end_time}
+                </span>
+                <span className="timetable-title">{s.title}</span>
+                {s.day_of_week === null && <span className="tag">Every day</span>}
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
 
       {loading ? (
         <Spinner label="Loading today's goals" />

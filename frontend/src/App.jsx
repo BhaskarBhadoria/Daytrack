@@ -1,5 +1,4 @@
 import { BrowserRouter, Routes, Route, Navigate, Link, useLocation, useNavigate } from "react-router-dom";
-import { useEffect } from "react";
 import {
   CalendarCheck2,
   Clock4,
@@ -9,6 +8,7 @@ import {
   BookOpenCheck,
   ClipboardCheck,
   FileText,
+  PenLine,
   Settings as SettingsIcon,
   LogOut,
   Sun,
@@ -16,9 +16,7 @@ import {
 } from "lucide-react";
 import { useAuth } from "./context/AuthContext.jsx";
 import { useTheme } from "./context/ThemeContext.jsx";
-import { useDoodlePreference } from "./context/DoodleContext.jsx";
 import { useReminders } from "./hooks/useReminders.js";
-import { getDailyDoodleDataUri } from "./utils/dailyDoodle.js";
 import Login from "./pages/Login.jsx";
 import Signup from "./pages/Signup.jsx";
 import Dashboard from "./pages/Dashboard.jsx";
@@ -30,12 +28,14 @@ import Timetable from "./pages/Timetable.jsx";
 import Syllabus from "./pages/Syllabus.jsx";
 import Attendance from "./pages/Attendance.jsx";
 import Files from "./pages/Files.jsx";
+import Journal from "./pages/Journal.jsx";
 import Avatar from "./components/Avatar.jsx";
 
 const NAV_ITEMS = [
   { to: "/", label: "Today", icon: CalendarCheck2 },
   { to: "/timetable", label: "Timetable", icon: Clock4 },
   { to: "/attendance", label: "Attendance", icon: ClipboardCheck },
+  { to: "/journal", label: "Journal", icon: PenLine },
   { to: "/sleep", label: "Sleep", icon: Moon },
   { to: "/report", label: "Weekly", icon: BarChart3 },
   { to: "/monthly", label: "Monthly", icon: CalendarDays },
@@ -111,24 +111,6 @@ function ReminderRunner() {
 
 function AppShell() {
   const { user } = useAuth();
-  const { theme } = useTheme();
-  const { pattern } = useDoodlePreference();
-
-  useEffect(() => {
-    if (!user) {
-      document.body.style.backgroundImage = "";
-      return;
-    }
-    if (pattern === "none") {
-      document.body.style.backgroundImage = "";
-      return;
-    }
-    const doodleColor = theme === "dark" ? "#4a5a50" : "#bcdbc9";
-    document.body.style.backgroundImage = getDailyDoodleDataUri(doodleColor, pattern);
-    document.body.style.backgroundRepeat = "repeat";
-    document.body.style.backgroundSize = "700px 700px";
-    document.body.style.backgroundAttachment = "fixed";
-  }, [user, theme, pattern]);
 
   return (
     <div className={user ? "app-shell with-sidebar" : "app-shell"}>
@@ -174,6 +156,14 @@ function AppShell() {
             element={
               <PrivateRoute>
                 <Attendance />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/journal"
+            element={
+              <PrivateRoute>
+                <Journal />
               </PrivateRoute>
             }
           />

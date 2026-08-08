@@ -2,7 +2,6 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { api } from "../api.js";
 import { useAuth } from "../context/AuthContext.jsx";
-import { useDailyPhoto } from "../hooks/useDailyPhoto.js";
 
 export default function Login() {
   const [email, setEmail] = useState("");
@@ -11,7 +10,6 @@ export default function Login() {
   const [loading, setLoading] = useState(false);
   const { login } = useAuth();
   const navigate = useNavigate();
-  const photo = useDailyPhoto();
 
   async function handleSubmit(e) {
     e.preventDefault();
@@ -29,10 +27,7 @@ export default function Login() {
   }
 
   return (
-    <div
-      className="auth-page"
-      style={photo ? { backgroundImage: `url(${photo.url})` } : undefined}
-    >
+    <div className="auth-page">
       <div className="auth-form">
         <h1>Log in to DayTrack</h1>
         <form onSubmit={handleSubmit}>
@@ -54,7 +49,6 @@ export default function Login() {
           No account? <Link to="/signup">Sign up</Link>
         </p>
       </div>
-      {photo && <span className="auth-photo-credit">{photo.title} — NASA APOD</span>}
     </div>
   );
 }

@@ -70,6 +70,16 @@ export default function Timetable() {
     setSlots((prev) => prev.filter((s) => s.id !== id));
   }
 
+  async function handleMakeEveryday(id) {
+    setError("");
+    try {
+      const updated = await api.updateTimetableSlot(id, { day_of_week: null });
+      setSlots((prev) => prev.map((s) => (s.id === id ? updated : s)));
+    } catch (err) {
+      setError(err.message);
+    }
+  }
+
   const visibleSlots = slots
     .filter((s) => s.day_of_week === null || s.day_of_week === activeDay)
     .sort((a, b) => toMinutes(a.start_time) - toMinutes(b.start_time));
@@ -134,7 +144,17 @@ export default function Timetable() {
                 {s.start_time} – {s.end_time}
               </span>
               <span className="timetable-title">{s.title}</span>
-              {s.day_of_week === null && <span className="tag">Every day</span>}
+              {s.day_of_week === null ? (
+                <span className="tag">Every day</span>
+              ) : (
+                <button
+                  type="button"
+                  className="link-toggle small-link"
+                  onClick={() => handleMakeEveryday(s.id)}
+                >
+                  Make everyday
+                </button>
+              )}
               {s.category !== "general" && <span className="tag">{s.category}</span>}
               <button className="icon-btn" onClick={() => handleDelete(s.id)} title="Delete">
                 ✕

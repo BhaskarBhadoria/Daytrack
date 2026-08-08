@@ -13,6 +13,7 @@ import googleRoutes from "./routes/google.js";
 import attendanceRoutes from "./routes/attendance.js";
 import exportRoutes from "./routes/export.js";
 import filesRoutes from "./routes/files.js";
+import journalRoutes from "./routes/journal.js";
 
 dotenv.config();
 
@@ -33,6 +34,7 @@ app.use("/api/google", googleRoutes);
 app.use("/api/attendance", attendanceRoutes);
 app.use("/api/export", exportRoutes);
 app.use("/api/files", filesRoutes);
+app.use("/api/journal", journalRoutes);
 
 const PORT = process.env.PORT || 4000;
 

@@ -130,6 +130,18 @@ CREATE TABLE IF NOT EXISTS uploaded_files (
   uploaded_at TIMESTAMP DEFAULT NOW()
 );
 
+-- Free-form daily journal, one entry per date per user.
+CREATE TABLE IF NOT EXISTS journal_entries (
+  id SERIAL PRIMARY KEY,
+  user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  entry_date DATE NOT NULL,
+  content TEXT NOT NULL DEFAULT '',
+  updated_at TIMESTAMP DEFAULT NOW(),
+  UNIQUE(user_id, entry_date)
+);
+
+CREATE INDEX IF NOT EXISTS idx_journal_user_date ON journal_entries(user_id, entry_date);
+
 -- Tracks which UPSC syllabus topics the user has completed. The syllabus tree
 -- itself lives as static data in the frontend; this just stores checked state.
 CREATE TABLE IF NOT EXISTS syllabus_progress (

@@ -79,6 +79,11 @@ export const api = {
     request(`/files`, { method: "POST", body: JSON.stringify({ filename, mime_type, data_base64 }) }),
   deleteFile: (id) => request(`/files/${id}`, { method: "DELETE" }),
 
+  getJournalEntry: (date) => request(`/journal?date=${date}`),
+  getRecentJournalEntries: () => request(`/journal/recent`),
+  saveJournalEntry: (date, content) =>
+    request(`/journal`, { method: "PUT", body: JSON.stringify({ date, content }) }),
+
   getCustomSyllabus: () => request(`/syllabus/custom`),
   addCustomSubject: (subject_key, name) =>
     request(`/syllabus/custom/subjects`, { method: "POST", body: JSON.stringify({ subject_key, name }) }),
